@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_todo_list/main.dart';
+import 'package:flutter_todo_list/todo.dart';
 import 'package:flutter_todo_list/upsert_todo_view.dart';
+import 'package:hooks_riverpod/all.dart';
 
 class TodoListView extends StatelessWidget {
   @override
@@ -15,14 +19,7 @@ class TodoListView extends StatelessWidget {
   }
 }
 
-class TodoList extends StatefulWidget {
-  @override
-  _TodoListState createState() => _TodoListState();
-}
-
-class _TodoListState extends State<TodoList> {
-  final _todoList = ['todo1', 'todo2', 'todo3', 'todo4'];
-
+class TodoList extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,23 +37,25 @@ class _TodoListState extends State<TodoList> {
   }
 
   Widget _buildList() {
+    // viewModelからtodoList取得/監視
+    final _todos = useProvider(todoProvider).todos;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemBuilder: (BuildContext context, int index) {
-        return _todoItem(_todoList[index]);
+        return _todoItem(_todos[index]);
       },
-      itemCount: _todoList.length,
+      itemCount: _todos.length,
     );
   }
 
-  Widget _todoItem(String todo) {
+  Widget _todoItem(Todo todo) {
     return Container(
       decoration: const BoxDecoration(
         border: const Border(bottom: BorderSide(width: 1, color: Colors.grey)),
       ),
       child: ListTile(
         title: Text(
-          todo,
+          todo.title,
           style: const TextStyle(
             color: Colors.black,
             fontSize: 16,

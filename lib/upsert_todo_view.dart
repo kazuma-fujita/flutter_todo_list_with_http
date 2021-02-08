@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_list/main.dart';
+import 'package:flutter_todo_list/todo.dart';
+import 'package:hooks_riverpod/all.dart';
 
 class UpsertTodoView extends StatelessWidget {
   @override
@@ -19,7 +22,7 @@ class TodoForm extends StatefulWidget {
 
 class _TodoFormState extends State<TodoForm> {
   final _formKey = GlobalKey<FormState>();
-  String _todo = '';
+  String _title = '';
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +36,19 @@ class _TodoFormState extends State<TodoForm> {
             new TextFormField(
               maxLength: 20,
               decoration: const InputDecoration(
-                hintText: 'Todoを入力してください',
-                labelText: 'Todo',
+                hintText: 'Todoタイトルを入力してください',
+                labelText: 'Todoタイトル',
               ),
-              validator: (String todo) {
-                return todo.isEmpty ? 'Todoを入力してください' : null;
+              validator: (String title) {
+                return title.isEmpty ? 'Todoタイトルを入力してください' : null;
               },
-              onSaved: (String todo) {
-                _todo = todo;
+              onSaved: (String title) {
+                _title = title;
               },
             ),
             RaisedButton(
-              onPressed: _submission,
-              child: const Text('保存'),
+              onPressed: () => _submission(context),
+              child: const Text('Todoに追加'),
             ),
           ],
         ),
@@ -53,11 +56,13 @@ class _TodoFormState extends State<TodoForm> {
     );
   }
 
-  void _submission() {
+  void _submission(BuildContext context) {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      // viewModelのtodoListを更新
+      context.read(todoProvider).createTodo(Todo(1, _title));
       Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('submit: $_todo')));
+          .showSnackBar(SnackBar(content: Text('submit: $_title')));
     }
   }
 }
