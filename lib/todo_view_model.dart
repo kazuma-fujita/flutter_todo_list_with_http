@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_todo_list/todo.dart';
 
 class TodoViewModel extends ChangeNotifier {
-  final List<Todo> _todos = [];
-  List<Todo> get todos => _todos;
+  final List<Todo> _todoList = [];
+  List<Todo> get todoList => _todoList;
 
-  List<Todo> fetchTodoList() => todos;
+  List<Todo> fetchTodoList() => todoList;
 
   void createTodo(Todo todo) {
-    _todos.add(todo);
+    _todoList.add(todo);
     notifyListeners();
   }
 }

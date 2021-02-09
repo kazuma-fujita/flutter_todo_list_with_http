@@ -61,8 +61,8 @@ class _TodoFormState extends State<TodoForm> {
       _formKey.currentState.save();
       // viewModelのtodoListを更新
       context.read(todoProvider).createTodo(Todo(1, _title));
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('submit: $_title')));
+      // 前の画面に戻る
+      Navigator.pop(context, _title);
     }
   }
 }

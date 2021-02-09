@@ -28,7 +28,7 @@ class TodoList extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => Navigator.pushNamed(context, 'upsert-todo'),
+            onPressed: () => transitionToNextScreen(context),
           ),
         ],
       ),
@@ -36,15 +36,20 @@ class TodoList extends HookWidget {
     );
   }
 
+  Future<void> transitionToNextScreen(BuildContext context) async {
+    final result = await Navigator.pushNamed(context, 'upsert-todo');
+    debugPrint(result.toString());
+  }
+
   Widget _buildList() {
     // viewModelからtodoList取得/監視
-    final _todos = useProvider(todoProvider).todos;
+    final _todoList = useProvider(todoProvider).todoList;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemBuilder: (BuildContext context, int index) {
-        return _todoItem(_todos[index]);
+        return _todoItem(_todoList[index]);
       },
-      itemCount: _todos.length,
+      itemCount: _todoList.length,
     );
   }
 
