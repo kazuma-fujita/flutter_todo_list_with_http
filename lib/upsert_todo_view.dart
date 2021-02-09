@@ -40,6 +40,8 @@ class _TodoFormState extends State<TodoForm> {
             TextFormField(
               initialValue: isNew ? '' : todo.title,
               maxLength: 20,
+              // maxLength以上入力不可
+              maxLengthEnforced: true,
               decoration: const InputDecoration(
                 hintText: 'Todoタイトルを入力してください',
                 labelText: 'Todoタイトル',

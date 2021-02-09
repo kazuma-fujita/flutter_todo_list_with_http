@@ -31,7 +31,7 @@ class TodoList extends HookWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Todo List'),
+        title: const Text('Todo一覧'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -59,20 +59,21 @@ class TodoList extends HookWidget {
     // ListViewのswipeができるwidget
     return Dismissible(
       // ユニークな値を設定
-      key: Key(todo.id.toString()),
+      key: UniqueKey(),
+      confirmDismiss: (direction) async {
+        // TODO: AlertDialogで確認を行うこと
+        // Future<bool> で確認結果を返す
+        // False の場合削除されない
+        return true;
+      },
       onDismissed: (DismissDirection direction) {
-        // swipe方向が左から右の場合の処理
-        if (direction == DismissDirection.endToStart) {
-          // viewModelのtodoList要素を削除
-          context.read(todoProvider).deleteTodo(todo.id);
-          // SnackBarを表示
-          // Scaffold.of(context)
-          //     .showSnackBar(SnackBar(content: Text('${todo.title}を削除しました')));
-          // ToastMessageを表示
-          Fluttertoast.showToast(
-            msg: '${todo.title}を削除しました',
-          );
-        }
+        // viewModelのtodoList要素を削除
+        context.read(todoProvider).deleteTodo(todo.id);
+        // ToastMessageを表示
+        Fluttertoast.showToast(
+          msg: '${todo.title}を削除しました',
+          backgroundColor: Colors.grey,
+        );
       },
       // swipe中ListTileのbackground
       background: Container(
@@ -123,6 +124,7 @@ class TodoList extends HookWidget {
       // ToastMessageを表示
       Fluttertoast.showToast(
         msg: '${result.toString()}を${todo == null ? '作成' : '更新'}しました',
+        backgroundColor: Colors.grey,
       );
     }
   }
