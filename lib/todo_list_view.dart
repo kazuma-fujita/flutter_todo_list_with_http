@@ -3,7 +3,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_todo_list/main.dart';
 import 'package:flutter_todo_list/todo.dart';
 import 'package:flutter_todo_list/upsert_todo_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/all.dart';
+
+class Const {
+  static const routeNameUpsertTodo = 'upsert-todo';
+}
 
 class TodoListView extends StatelessWidget {
   @override
@@ -12,7 +17,7 @@ class TodoListView extends StatelessWidget {
       title: 'Todo List Widget',
       theme: ThemeData(primaryColor: Colors.white),
       routes: <String, WidgetBuilder>{
-        'upsert-todo': (BuildContext context) => UpsertTodoView(),
+        Const.routeNameUpsertTodo: (BuildContext context) => UpsertTodoView(),
       },
       home: TodoList(),
     );
@@ -20,6 +25,8 @@ class TodoListView extends StatelessWidget {
 }
 
 class TodoList extends HookWidget {
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,24 +43,55 @@ class TodoList extends HookWidget {
     );
   }
 
-  Future<void> transitionToNextScreen(BuildContext context) async {
-    final result = await Navigator.pushNamed(context, 'upsert-todo');
-    debugPrint(result.toString());
-  }
-
   Widget _buildList() {
     // viewModelからtodoList取得/監視
     final _todoList = useProvider(todoProvider).todoList;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemBuilder: (BuildContext context, int index) {
-        return _todoItem(_todoList[index]);
-      },
       itemCount: _todoList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return _dismissible(_todoList[index], context);
+      },
     );
   }
 
-  Widget _todoItem(Todo todo) {
+  Widget _dismissible(Todo todo, BuildContext context) {
+    // ListViewのswipeができるwidget
+    return Dismissible(
+      // ユニークな値を設定
+      key: Key(todo.id.toString()),
+      onDismissed: (DismissDirection direction) {
+        // swipe方向が左から右の場合の処理
+        if (direction == DismissDirection.endToStart) {
+          // viewModelのtodoList要素を削除
+          context.read(todoProvider).deleteTodo(todo.id);
+          // SnackBarを表示
+          // Scaffold.of(context)
+          //     .showSnackBar(SnackBar(content: Text('${todo.title}を削除しました')));
+          // ToastMessageを表示
+          Fluttertoast.showToast(
+            msg: '${todo.title}を削除しました',
+          );
+        }
+      },
+      // swipe中ListTileのbackground
+      background: Container(
+        alignment: Alignment.centerLeft,
+        // backgroundが赤/ゴミ箱Icon表示
+        color: Colors.red,
+        child: const Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: const Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      child: _todoItem(todo, context),
+    );
+  }
+
+  Widget _todoItem(Todo todo, BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         border: const Border(bottom: BorderSide(width: 1, color: Colors.grey)),
@@ -68,8 +106,24 @@ class TodoList extends HookWidget {
         ),
         onTap: () {
           print('tapped');
+          transitionToNextScreen(context, todo: todo);
         },
       ),
     );
+  }
+
+  Future<void> transitionToNextScreen(BuildContext context,
+      {Todo todo = null}) async {
+    final result = await Navigator.pushNamed(context, Const.routeNameUpsertTodo,
+        arguments: todo);
+
+    debugPrint('result: ${result.toString()}');
+
+    if (result != null) {
+      // ToastMessageを表示
+      Fluttertoast.showToast(
+        msg: '${result.toString()}を${todo == null ? '作成' : '更新'}しました',
+      );
+    }
   }
 }

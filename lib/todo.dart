@@ -1,5 +1,5 @@
 class Todo {
   Todo(this.id, this.title);
-  int id;
+  final int id;
   String title;
 }

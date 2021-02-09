@@ -26,6 +26,7 @@ dependencies:
   provider: ^4.3.3 # add
   flutter_riverpod: ^0.12.3+1 # add
   hooks_riverpod: ^0.12.3+1 # add
+  fluttertoast: ^7.1.6 # add
 
 
   # The following adds the Cupertino Icons font to your application.

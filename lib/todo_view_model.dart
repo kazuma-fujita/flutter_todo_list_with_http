@@ -2,13 +2,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_todo_list/todo.dart';
 
 class TodoViewModel extends ChangeNotifier {
-  final List<Todo> _todoList = [];
+  List<Todo> _todoList = [];
   List<Todo> get todoList => _todoList;
 
-  List<Todo> fetchTodoList() => todoList;
+  // List<Todo> fetchTodoList() => [];
 
-  void createTodo(Todo todo) {
-    _todoList.add(todo);
+  void createTodo(String title) {
+    // とりあえず配列のindexをidに設定
+    final id = _todoList.length + 1;
+    _todoList = [...todoList, Todo(id, title)];
+    notifyListeners();
+  }
+
+  void updateTodo(int id, String title) {
+    print('updateTodo id: $id title: $title');
+    // todoList更新処理 TODO: 本来はmapでimmutableに処理する
+    todoList.asMap().forEach((int index, Todo todo) {
+      if (todo.id == id) {
+        _todoList[index].title = title;
+      }
+    });
+    notifyListeners();
+  }
+
+  void deleteTodo(int id) {
+    print('deleteTodo id: $id');
+    _todoList = todoList.where((todo) => todo.id != id).toList();
+    print(_todoList.toString());
     notifyListeners();
   }
 }

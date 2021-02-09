@@ -6,9 +6,11 @@ import 'package:hooks_riverpod/all.dart';
 class UpsertTodoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final todo = ModalRoute.of(context).settings.arguments as Todo;
+    final isNew = todo == null;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upsert todo'),
+        title: Text('Todo${isNew ? '新規作成' : '更新'}'),
       ),
       body: TodoForm(),
     );
@@ -26,6 +28,8 @@ class _TodoFormState extends State<TodoForm> {
 
   @override
   Widget build(BuildContext context) {
+    final todo = ModalRoute.of(context).settings.arguments as Todo;
+    final isNew = todo == null;
     return Form(
       key: _formKey,
       child: Container(
@@ -33,7 +37,8 @@ class _TodoFormState extends State<TodoForm> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            new TextFormField(
+            TextFormField(
+              initialValue: isNew ? '' : todo.title,
               maxLength: 20,
               decoration: const InputDecoration(
                 hintText: 'Todoタイトルを入力してください',
@@ -47,8 +52,8 @@ class _TodoFormState extends State<TodoForm> {
               },
             ),
             RaisedButton(
-              onPressed: () => _submission(context),
-              child: const Text('Todoに追加'),
+              onPressed: () => _submission(context, todo),
+              child: Text('Todoを${isNew ? '作成する' : '更新する'}'),
             ),
           ],
         ),
@@ -56,11 +61,16 @@ class _TodoFormState extends State<TodoForm> {
     );
   }
 
-  void _submission(BuildContext context) {
+  void _submission(BuildContext context, Todo todo) {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      // viewModelのtodoListを更新
-      context.read(todoProvider).createTodo(Todo(1, _title));
+      if (todo != null) {
+        // viewModelのtodoListを更新
+        context.read(todoProvider).updateTodo(todo.id, _title);
+      } else {
+        // viewModelのtodoListを作成
+        context.read(todoProvider).createTodo(_title);
+      }
       // 前の画面に戻る
       Navigator.pop(context, _title);
     }
