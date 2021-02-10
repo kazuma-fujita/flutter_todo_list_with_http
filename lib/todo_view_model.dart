@@ -9,12 +9,6 @@ class TodoViewModel extends ChangeNotifier {
   // 外から変更不能なListView
   UnmodifiableListView<Todo> get todoList => UnmodifiableListView(_todoList);
 
-  // todoList初期処理。本来はAPI or DBから値を取得
-  List<Todo> initializeTodoList() {
-    _todoList = [Todo(1, 'First task')];
-    return todoList;
-  }
-
   void createTodo(String title) {
     // 配列のindexをidに設定
     final id = _todoList.length + 1;

@@ -9,7 +9,7 @@ final todoProvider = ChangeNotifierProvider(
 );
 
 void main() {
-  debugPaintSizeEnabled = true;
+  debugPaintSizeEnabled = false;
   // runApp(TodoListView());
   runApp(
     ProviderScope(
