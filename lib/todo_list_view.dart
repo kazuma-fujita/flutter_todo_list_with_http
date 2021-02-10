@@ -32,7 +32,7 @@ class TodoList extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => transitionToNextScreen(context),
+            onPressed: () => _transitionToNextScreen(context),
           ),
         ],
       ),
@@ -58,9 +58,9 @@ class TodoList extends HookWidget {
       // ユニークな値を設定
       key: UniqueKey(),
       confirmDismiss: (direction) async {
-        final confirmResult = await _showDeleteConfirmDialog(context);
+        final confirmResult =
+            await _showDeleteConfirmDialog(todo.title, context);
         // Future<bool> で確認結果を返す。False の場合削除されない
-        print('confirmResult: $confirmResult');
         return confirmResult;
       },
       onDismissed: (DismissDirection direction) {
@@ -103,37 +103,35 @@ class TodoList extends HookWidget {
           ),
         ),
         onTap: () {
-          print('tapped');
-          transitionToNextScreen(context, todo: todo);
+          _transitionToNextScreen(context, todo: todo);
         },
       ),
     );
   }
 
-  Future<void> transitionToNextScreen(BuildContext context,
+  Future<void> _transitionToNextScreen(BuildContext context,
       {Todo todo = null}) async {
     final result = await Navigator.pushNamed(context, Const.routeNameUpsertTodo,
         arguments: todo);
 
-    debugPrint('result: ${result.toString()}');
-
     if (result != null) {
       // ToastMessageを表示
       Fluttertoast.showToast(
-        msg: '${result.toString()}を${todo == null ? '作成' : '更新'}しました',
+        msg: result.toString(),
         backgroundColor: Colors.grey,
       );
     }
   }
 
-  Future<bool> _showDeleteConfirmDialog(BuildContext context) async {
+  Future<bool> _showDeleteConfirmDialog(
+      String title, BuildContext context) async {
     final result = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('削除'),
-            content: const Text('削除しますか？'),
+            content: Text('$titleを削除しますか？'),
             actions: [
               FlatButton(
                 onPressed: () => Navigator.of(context).pop(false),

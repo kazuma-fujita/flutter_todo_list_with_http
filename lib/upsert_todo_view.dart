@@ -7,10 +7,9 @@ class UpsertTodoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final todo = ModalRoute.of(context).settings.arguments as Todo;
-    final isNew = todo == null;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Todo${isNew ? '新規作成' : '更新'}'),
+        title: Text('Todo${todo == null ? '作成' : '更新'}'),
       ),
       body: TodoForm(),
     );
@@ -29,7 +28,6 @@ class _TodoFormState extends State<TodoForm> {
   @override
   Widget build(BuildContext context) {
     final todo = ModalRoute.of(context).settings.arguments as Todo;
-    final isNew = todo == null;
     return Form(
       key: _formKey,
       child: Container(
@@ -38,7 +36,7 @@ class _TodoFormState extends State<TodoForm> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             TextFormField(
-              initialValue: isNew ? '' : todo.title,
+              initialValue: todo != null ? todo.title : '',
               maxLength: 20,
               // maxLength以上入力不可
               maxLengthEnforced: true,
@@ -55,7 +53,7 @@ class _TodoFormState extends State<TodoForm> {
             ),
             RaisedButton(
               onPressed: () => _submission(context, todo),
-              child: Text('Todoを${isNew ? '作成する' : '更新する'}'),
+              child: Text('Todoを${todo == null ? '作成' : '更新'}する'),
             ),
           ],
         ),
@@ -74,7 +72,7 @@ class _TodoFormState extends State<TodoForm> {
         context.read(todoProvider).createTodo(_title);
       }
       // 前の画面に戻る
-      Navigator.pop(context, _title);
+      Navigator.pop(context, '$_titleを${todo == null ? '作成' : '更新'}しました');
     }
   }
 }
