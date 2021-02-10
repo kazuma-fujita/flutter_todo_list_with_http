@@ -1,21 +1,28 @@
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_todo_list/todo.dart';
 
 class TodoViewModel extends ChangeNotifier {
+  // privateなローカル変数
   List<Todo> _todoList = [];
-  List<Todo> get todoList => _todoList;
+  // 外から変更不能なListView
+  UnmodifiableListView<Todo> get todoList => UnmodifiableListView(_todoList);
 
-  // List<Todo> fetchTodoList() => [];
+  // todoList初期処理。本来はAPI or DBから値を取得
+  List<Todo> initializeTodoList() {
+    _todoList = [Todo(1, 'First task')];
+    return todoList;
+  }
 
   void createTodo(String title) {
-    // とりあえず配列のindexをidに設定
+    // 配列のindexをidに設定
     final id = _todoList.length + 1;
     _todoList = [...todoList, Todo(id, title)];
     notifyListeners();
   }
 
   void updateTodo(int id, String title) {
-    print('updateTodo id: $id title: $title');
     todoList.asMap().forEach((int index, Todo todo) {
       if (todo.id == id) {
         _todoList[index].title = title;
@@ -25,9 +32,7 @@ class TodoViewModel extends ChangeNotifier {
   }
 
   void deleteTodo(int id) {
-    print('deleteTodo id: $id');
     _todoList = todoList.where((todo) => todo.id != id).toList();
-    print(_todoList.toString());
     notifyListeners();
   }
 }

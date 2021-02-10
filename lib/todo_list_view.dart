@@ -41,8 +41,14 @@ class TodoList extends HookWidget {
   }
 
   Widget _buildList() {
+    final viewModel = useProvider(todoProvider);
     // viewModelからtodoList取得/監視
-    final _todoList = useProvider(todoProvider).todoList;
+    final List<Todo> _todoList = viewModel.todoList;
+    useEffect(() {
+      // viewModelのtodoList初期化処理
+      viewModel.initializeTodoList();
+      return () {};
+    }, const []);
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _todoList.length,
