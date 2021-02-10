@@ -14,7 +14,6 @@ class TodoListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Todo List Widget',
       theme: ThemeData(primaryColor: Colors.white),
       routes: <String, WidgetBuilder>{
         Const.routeNameUpsertTodo: (BuildContext context) => UpsertTodoView(),
@@ -25,13 +24,11 @@ class TodoListView extends StatelessWidget {
 }
 
 class TodoList extends HookWidget {
-  // final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Todo一覧'),
+        title: const Text('Todo'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -61,10 +58,10 @@ class TodoList extends HookWidget {
       // ユニークな値を設定
       key: UniqueKey(),
       confirmDismiss: (direction) async {
-        // TODO: AlertDialogで確認を行うこと
-        // Future<bool> で確認結果を返す
-        // False の場合削除されない
-        return true;
+        final confirmResult = await _showDeleteConfirmDialog(context);
+        // Future<bool> で確認結果を返す。False の場合削除されない
+        print('confirmResult: $confirmResult');
+        return confirmResult;
       },
       onDismissed: (DismissDirection direction) {
         // viewModelのtodoList要素を削除
@@ -127,5 +124,28 @@ class TodoList extends HookWidget {
         backgroundColor: Colors.grey,
       );
     }
+  }
+
+  Future<bool> _showDeleteConfirmDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('削除'),
+            content: const Text('削除しますか？'),
+            actions: [
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('cancel'),
+              ),
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        });
+    return result;
   }
 }

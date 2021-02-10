@@ -16,7 +16,6 @@ class TodoViewModel extends ChangeNotifier {
 
   void updateTodo(int id, String title) {
     print('updateTodo id: $id title: $title');
-    // todoList更新処理 TODO: 本来はmapでimmutableに処理する
     todoList.asMap().forEach((int index, Todo todo) {
       if (todo.id == id) {
         _todoList[index].title = title;
