@@ -10,7 +10,6 @@ final todoProvider = ChangeNotifierProvider(
 
 void main() {
   debugPaintSizeEnabled = false;
-  // runApp(TodoListView());
   runApp(
     ProviderScope(
       child: TodoListView(),
