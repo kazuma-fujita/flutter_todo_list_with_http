@@ -23,8 +23,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  hooks_riverpod: ^0.12.3+1 # add
-  fluttertoast: ^7.1.6 # add
+  # state_notifier: ^0.6.0         # add
+  flutter_state_notifier: ^0.6.1 # add
+  freezed_annotation: ^0.12.0    # add
+  hooks_riverpod: ^0.12.3+1      # add
+  fluttertoast: ^7.1.6           # add
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -34,7 +37,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic_mono: any # add
+  pedantic_mono: any    # add
+  build_runner: ^1.11.1 # add
+  freezed: ^0.12.7      # add
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
