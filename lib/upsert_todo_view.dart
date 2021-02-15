@@ -66,10 +66,10 @@ class _TodoFormState extends State<TodoForm> {
       _formKey.currentState.save();
       if (todo != null) {
         // viewModelのtodoListを更新
-        context.read(todoProvider).updateTodo(todo.id, _title);
+        context.read(todoViewModelProvider).updateTodo(todo.id, _title);
       } else {
         // viewModelのtodoListを作成
-        context.read(todoProvider).createTodo(_title);
+        context.read(todoViewModelProvider).createTodo(_title);
       }
       // 前の画面に戻る
       Navigator.pop(context, '$_titleを${todo == null ? '作成' : '更新'}しました');

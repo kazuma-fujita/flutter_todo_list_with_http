@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+
+@immutable
 class Todo {
-  Todo(this.id, this.title);
+  const Todo(this.id, this.title);
   final int id;
-  String title;
+  final String title;
 }

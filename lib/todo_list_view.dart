@@ -41,9 +41,9 @@ class TodoList extends HookWidget {
   }
 
   Widget _buildList() {
-    final viewModel = useProvider(todoProvider);
+    final todoState = useProvider(todoViewModelProvider.state);
     // viewModelからtodoList取得/監視
-    final List<Todo> _todoList = viewModel.todoList;
+    final _todoList = todoState.todoList;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _todoList.length,
@@ -66,7 +66,7 @@ class TodoList extends HookWidget {
       },
       onDismissed: (DismissDirection direction) {
         // viewModelのtodoList要素を削除
-        context.read(todoProvider).deleteTodo(todo.id);
+        context.read(todoViewModelProvider).deleteTodo(todo.id);
         // ToastMessageを表示
         Fluttertoast.showToast(
           msg: '${todo.title}を削除しました',
@@ -79,8 +79,8 @@ class TodoList extends HookWidget {
         // backgroundが赤/ゴミ箱Icon表示
         color: Colors.red,
         child: const Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: const Icon(
+          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: Icon(
             Icons.delete,
             color: Colors.white,
           ),
@@ -93,7 +93,7 @@ class TodoList extends HookWidget {
   Widget _todoItem(Todo todo, BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        border: const Border(bottom: BorderSide(width: 1, color: Colors.grey)),
+        border: Border(bottom: BorderSide(width: 1, color: Colors.grey)),
       ),
       child: ListTile(
         title: Text(
@@ -111,13 +111,13 @@ class TodoList extends HookWidget {
   }
 
   Future<void> _transitionToNextScreen(BuildContext context,
-      {Todo todo = null}) async {
+      {Todo todo}) async {
     final result = await Navigator.pushNamed(context, Const.routeNameUpsertTodo,
         arguments: todo);
 
     if (result != null) {
       // ToastMessageを表示
-      Fluttertoast.showToast(
+      await Fluttertoast.showToast(
         msg: result.toString(),
         backgroundColor: Colors.grey,
       );
