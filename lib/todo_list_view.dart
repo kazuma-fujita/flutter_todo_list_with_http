@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_todo_list/main.dart';
-import 'package:flutter_todo_list/todo.dart';
+import 'package:flutter_todo_list/todo_entity.dart';
 import 'package:flutter_todo_list/upsert_todo_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/all.dart';
@@ -42,18 +42,48 @@ class TodoList extends HookWidget {
 
   Widget _buildList() {
     final todoState = useProvider(todoViewModelProvider.state);
-    // viewModelからtodoList取得/監視
-    final _todoList = todoState.todoList;
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _todoList.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _dismissible(_todoList[index], context);
-      },
+    return todoState.when(
+      data: (todoList) => todoList.isNotEmpty
+          ? ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: todoList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _dismissible(todoList[index], context);
+              },
+            )
+          : _emptyListView(),
+      loading: _loadingView,
+      error: (error, _) => _errorView(error.toString()),
     );
   }
 
-  Widget _dismissible(Todo todo, BuildContext context) {
+  Widget _loadingView() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _errorView(String errorMessage) {
+    Fluttertoast.showToast(
+      msg: errorMessage,
+      backgroundColor: Colors.grey,
+    );
+    return Container();
+  }
+
+  Widget _emptyListView() {
+    return const Center(
+      child: Text(
+        'タスクを追加してください',
+        style: TextStyle(
+          color: Colors.black54,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _dismissible(TodoEntity todo, BuildContext context) {
     // ListViewのswipeができるwidget
     return Dismissible(
       // ユニークな値を設定
@@ -90,7 +120,7 @@ class TodoList extends HookWidget {
     );
   }
 
-  Widget _todoItem(Todo todo, BuildContext context) {
+  Widget _todoItem(TodoEntity todo, BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(width: 1, color: Colors.grey)),
@@ -111,7 +141,7 @@ class TodoList extends HookWidget {
   }
 
   Future<void> _transitionToNextScreen(BuildContext context,
-      {Todo todo}) async {
+      {TodoEntity todo}) async {
     final result = await Navigator.pushNamed(context, Const.routeNameUpsertTodo,
         arguments: todo);
 

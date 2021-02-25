@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_list/main.dart';
-import 'package:flutter_todo_list/todo.dart';
+import 'package:flutter_todo_list/todo_entity.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class UpsertTodoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final todo = ModalRoute.of(context).settings.arguments as Todo;
+    final todo = ModalRoute.of(context).settings.arguments as TodoEntity;
     return Scaffold(
       appBar: AppBar(
         title: Text('Todo${todo == null ? '作成' : '更新'}'),
@@ -27,7 +27,7 @@ class _TodoFormState extends State<TodoForm> {
 
   @override
   Widget build(BuildContext context) {
-    final todo = ModalRoute.of(context).settings.arguments as Todo;
+    final todo = ModalRoute.of(context).settings.arguments as TodoEntity;
     return Form(
       key: _formKey,
       child: Container(
@@ -61,7 +61,7 @@ class _TodoFormState extends State<TodoForm> {
     );
   }
 
-  void _submission(BuildContext context, Todo todo) {
+  void _submission(BuildContext context, TodoEntity todo) {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       if (todo != null) {
