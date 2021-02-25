@@ -11,7 +11,7 @@ abstract class TodoApiClient {
 
 class TodoApiClientImpl implements TodoApiClient {
   // factory コンストラクタは instanceを生成せず常にキャッシュを返す(singleton)
-  factory TodoApiClientImpl({String baseUrl = 'http://172.0.0.1:3030'}) {
+  factory TodoApiClientImpl({String baseUrl = 'http://10.0.2.2:3030'}) {
     return _instance ??= TodoApiClientImpl._internal(baseUrl);
   }
   // クラス生成時に instance を生成する class コンストラクタ

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_todo_list/main.dart';
 import 'package:flutter_todo_list/todo_entity.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class UpsertTodoView extends StatelessWidget {
   @override
@@ -11,17 +14,48 @@ class UpsertTodoView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Todo${todo == null ? '作成' : '更新'}'),
       ),
-      body: TodoForm(),
+      body: _UpsertTodoView(),
     );
   }
 }
 
-class TodoForm extends StatefulWidget {
+// class TodoForm extends StatefulWidget {
+//   @override
+//   _TodoFormState createState() => _TodoFormState();
+// }
+
+class _UpsertTodoView extends HookWidget {
   @override
-  _TodoFormState createState() => _TodoFormState();
+  Widget build(BuildContext context) {
+    useProvider(upsertTodoViewModelProvider.state).maybeWhen(
+      data: (todo) => {
+        if (todo != null)
+          {
+            EasyLoading.dismiss(),
+            Navigator.pop(context, '${todo.title}を登録しました'),
+          }
+      },
+      // loading: () => EasyLoading.show,
+      error: (error, _) => {
+        EasyLoading.dismiss(),
+        _errorView(error.toString()),
+      },
+      orElse: () {},
+    );
+    return TodoForm();
+  }
+
+  void _errorView(String errorMessage) {
+    Fluttertoast.showToast(
+      msg: errorMessage,
+      backgroundColor: Colors.grey,
+    );
+    // return const Scaffold();
+  }
 }
 
-class _TodoFormState extends State<TodoForm> {
+// ignore: must_be_immutable
+class TodoForm extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   String _title = '';
 
@@ -52,6 +86,9 @@ class _TodoFormState extends State<TodoForm> {
               },
             ),
             RaisedButton(
+              // onPressed: EasyLoading.show,
+              // onPressed: _submission(context, todo),
+              // onPressed: () => _submission(context, todo),
               onPressed: () => _submission(context, todo),
               child: Text('Todoを${todo == null ? '作成' : '更新'}する'),
             ),
@@ -61,18 +98,40 @@ class _TodoFormState extends State<TodoForm> {
     );
   }
 
-  void _submission(BuildContext context, TodoEntity todo) {
+  // void _loadingView(BuildContext context) {
+  //   final alert = AlertDialog(
+  //     content: Row(
+  //       children: [
+  //         const CircularProgressIndicator(),
+  //         Container(
+  //             margin: const EdgeInsets.only(left: 7),
+  //             child: const Text('Loading...')),
+  //       ],
+  //     ),
+  //   );
+  //   showDialog<bool>(
+  //     barrierDismissible: false,
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return alert;
+  //     },
+  //   );
+  // }
+  Future<void> _submission(BuildContext context, TodoEntity todo) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      await EasyLoading.show();
       if (todo != null) {
         // viewModelのtodoListを更新
-        context.read(todoViewModelProvider).updateTodo(todo.id, _title);
+        await context
+            .read(upsertTodoViewModelProvider)
+            .updateTodo(todo.id, _title);
       } else {
         // viewModelのtodoListを作成
-        context.read(todoViewModelProvider).createTodo(_title);
+        await context.read(upsertTodoViewModelProvider).createTodo(_title);
       }
       // 前の画面に戻る
-      Navigator.pop(context, '$_titleを${todo == null ? '作成' : '更新'}しました');
+      // Navigator.pop(context, '$_titleを${todo == null ? '作成' : '更新'}しました');
     }
   }
 }

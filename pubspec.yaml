@@ -28,6 +28,7 @@ dependencies:
   state_notifier:
   freezed_annotation:
   fluttertoast:
+  flutter_easyloading:
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_todo_list/main.dart';
 import 'package:flutter_todo_list/todo_entity.dart';
@@ -19,6 +20,7 @@ class TodoListView extends StatelessWidget {
         Const.routeNameUpsertTodo: (BuildContext context) => UpsertTodoView(),
       },
       home: TodoList(),
+      builder: EasyLoading.init(), // added
     );
   }
 }
@@ -41,7 +43,7 @@ class TodoList extends HookWidget {
   }
 
   Widget _buildList() {
-    final todoState = useProvider(todoViewModelProvider.state);
+    final todoState = useProvider(todoListViewModelProvider.state);
     return todoState.when(
       data: (todoList) => todoList.isNotEmpty
           ? ListView.builder(
@@ -96,7 +98,7 @@ class TodoList extends HookWidget {
       },
       onDismissed: (DismissDirection direction) {
         // viewModelのtodoList要素を削除
-        context.read(todoViewModelProvider).deleteTodo(todo.id);
+        context.read(todoListViewModelProvider).deleteTodo(todo.id);
         // ToastMessageを表示
         Fluttertoast.showToast(
           msg: '${todo.title}を削除しました',
