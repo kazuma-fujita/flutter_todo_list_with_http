@@ -34,7 +34,9 @@ class _UpsertTodoView extends HookWidget {
       data: (todo) {
         if (todo != null) {
           EasyLoading.dismiss();
-          Navigator.pop(context, '${todo.title}を${isNew ? '作成' : '更新'}しました');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pop(context, '${todo.title}を${isNew ? '作成' : '更新'}しました');
+          });
         }
       },
       loading: () async {
