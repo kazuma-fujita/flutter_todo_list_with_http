@@ -6,9 +6,10 @@ import 'package:flutter_todo_list/todo_entity.dart';
 import 'package:flutter_todo_list/upsert_todo_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class Const {
-  static const routeNameUpsertTodo = 'upsert-todo';
+  static const routeNameUpsertTodo = '/upsert-todo';
 }
 
 class TodoListView extends StatelessWidget {
@@ -26,15 +27,22 @@ class TodoListView extends StatelessWidget {
 }
 
 class TodoList extends HookWidget {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
+    final todoState = useProvider(todoListViewModelProvider.state);
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Todo'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _transitionToNextScreen(context),
+            disabledColor: Colors.black,
+            // List取得成功時以外は+ボタンdisabled
+            onPressed: () => todoState is AsyncData
+                ? _transitionToNextScreen(context)
+                : null,
           ),
         ],
       ),
@@ -47,6 +55,7 @@ class TodoList extends HookWidget {
     return todoState.when(
       data: (todoList) => todoList.isNotEmpty
           ? ListView.builder(
+              key: UniqueKey(),
               padding: const EdgeInsets.all(16),
               itemCount: todoList.length,
               itemBuilder: (BuildContext context, int index) {
@@ -54,22 +63,30 @@ class TodoList extends HookWidget {
               },
             )
           : _emptyListView(),
-      loading: _loadingView,
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => _errorView(error.toString()),
     );
   }
 
-  Widget _loadingView() {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
   Widget _errorView(String errorMessage) {
-    Fluttertoast.showToast(
-      msg: errorMessage,
-      backgroundColor: Colors.grey,
+    final context = useContext();
+    final snackBar = SnackBar(
+      content: Text(errorMessage),
+      duration: const Duration(days: 365),
+      action: SnackBarAction(
+        label: '再試行',
+        onPressed: () {
+          // 一覧取得
+          context.read(todoListViewModelProvider).fetchList();
+          // snackBar非表示
+          _scaffoldKey.currentState.removeCurrentSnackBar();
+        },
+      ),
     );
+    // 全Widgetのbuild後にsnackBarを表示させる
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+    });
     return Container();
   }
 
@@ -89,7 +106,7 @@ class TodoList extends HookWidget {
     // ListViewのswipeができるwidget
     return Dismissible(
       // ユニークな値を設定
-      key: UniqueKey(),
+      key: Key(todo.id.toString()),
       confirmDismiss: (direction) async {
         final confirmResult =
             await _showDeleteConfirmDialog(todo.title, context);
@@ -128,6 +145,7 @@ class TodoList extends HookWidget {
         border: Border(bottom: BorderSide(width: 1, color: Colors.grey)),
       ),
       child: ListTile(
+        key: Key(todo.id.toString()),
         title: Text(
           todo.title,
           style: const TextStyle(

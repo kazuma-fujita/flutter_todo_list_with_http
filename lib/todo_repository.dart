@@ -41,11 +41,11 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<void> updateTodo({int id, String title}) async {
     final body = {'title': title};
-    await apiClient.put('/$endPoint/$id', body: json.encode(body));
+    await apiClient.put('$endPoint/$id', body: json.encode(body));
   }
 
   @override
   Future<void> deleteTodo({int id}) async {
-    await apiClient.delete('/$endPoint/$id');
+    await apiClient.delete('$endPoint/$id');
   }
 }

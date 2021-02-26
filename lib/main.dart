@@ -43,7 +43,7 @@ void initEasyLoading() {
     ..indicatorType = EasyLoadingIndicatorType.wave
     ..loadingStyle = EasyLoadingStyle.custom
     ..maskType = EasyLoadingMaskType.custom
-    ..maskColor = Colors.black.withOpacity(0.3)
+    ..maskColor = Colors.black.withOpacity(0.1)
     ..textColor = Colors.black
     ..indicatorColor = Colors.black
     ..backgroundColor = Colors.white;

@@ -14,45 +14,37 @@ class UpsertTodoViewModel extends StateNotifier<AsyncValue<TodoEntity>> {
   final TodoRepository todoRepository;
 
   Future<void> createTodo(String title) async {
-    // loading処理でstateが上書きされる為、先にstateのvalueを取得する
-    // final currentList = state.data.value;
-    final currentList = todoListViewModel.state.data.value ?? [];
-    state = const AsyncValue.loading();
-    try {
+    await _tryCatch(() async {
       await todoRepository.createTodo(title: title);
-      // 配列のindexをidに設定
+      final currentList = todoListViewModel.state.data.value;
       final id = currentList.length + 1;
-      final todo = TodoEntity(id: id, title: title);
-      final newList = [...currentList, todo];
-      state = AsyncValue.data(todo);
+      final newTodo = TodoEntity(id: id, title: title);
+      final newList = [...currentList, newTodo];
       todoListViewModel.state = AsyncValue.data(newList);
-    } on Exception catch (error) {
-      state = AsyncValue.error(error);
-    }
+      state = AsyncValue.data(newTodo);
+    });
   }
 
   Future<void> updateTodo(int id, String title) async {
-    // final currentList = state.data.value;
-    state = const AsyncValue.loading();
-    try {
+    await _tryCatch(() async {
       await todoRepository.updateTodo(id: id, title: title);
-      // final newList = currentList
-      //     .map(
-      //         (todo) => todo.id == id ? TodoEntity(id: id, title: title) : todo)
-      //     .toList();
-      // state = AsyncValue.data(newList);
-    } on Exception catch (error) {
-      state = AsyncValue.error(error);
-    }
+      final currentList = todoListViewModel.state.data.value;
+      final newTodo = TodoEntity(id: id, title: title);
+      final newList =
+          currentList.map((todo) => todo.id == id ? newTodo : todo).toList();
+      todoListViewModel.state = AsyncValue.data(newList);
+      state = AsyncValue.data(newTodo);
+    });
   }
 
-  Future<void> deleteTodo(int id) async {
-    // final currentList = state.data.value;
+  Future<void> _tryCatch(Function callback) async {
+    if (todoListViewModel.state is AsyncError) {
+      state = AsyncValue.error('There is an error in the list.');
+      return;
+    }
     state = const AsyncValue.loading();
     try {
-      await todoRepository.deleteTodo(id: id);
-      // final newList = currentList.where((todo) => todo.id != id).toList();
-      // state = AsyncValue.data(newList);
+      await callback();
     } on Exception catch (error) {
       state = AsyncValue.error(error);
     }

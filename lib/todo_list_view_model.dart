@@ -7,58 +7,35 @@ import 'package:meta/meta.dart';
 class TodoListViewModel extends StateNotifier<AsyncValue<List<TodoEntity>>> {
   TodoListViewModel({@required this.todoRepository})
       : super(const AsyncValue.loading()) {
-    _fetchList();
+    fetchList();
   }
 
   final TodoRepository todoRepository;
 
-  Future<void> _fetchList() async {
-    state = const AsyncValue.loading();
-    try {
+  Future<void> fetchList() async {
+    await _tryCatch(() async {
       final newList = await todoRepository.fitchList();
       state = AsyncValue.data(newList);
-    } on Exception catch (error) {
-      state = AsyncValue.error(error);
-    }
+    });
   }
 
-  // Future<void> createTodo(String title) async {
-  //   // loading処理でstateが上書きされる為、先にstateのvalueを取得する
-  //   final currentList = state.data.value;
-  //   state = const AsyncValue.loading();
-  //   try {
-  //     await todoRepository.createTodo(title: title);
-  //     // 配列のindexをidに設定
-  //     final id = currentList.length + 1;
-  //     final newList = [...currentList, TodoEntity(id: id, title: title)];
-  //     state = AsyncValue.data(newList);
-  //   } on Exception catch (error) {
-  //     state = AsyncValue.error(error);
-  //   }
-  // }
-  //
-  // Future<void> updateTodo(int id, String title) async {
-  //   final currentList = state.data.value;
-  //   state = const AsyncValue.loading();
-  //   try {
-  //     await todoRepository.updateTodo(id: id, title: title);
-  //     final newList = currentList
-  //         .map(
-  //             (todo) => todo.id == id ? TodoEntity(id: id, title: title) : todo)
-  //         .toList();
-  //     state = AsyncValue.data(newList);
-  //   } on Exception catch (error) {
-  //     state = AsyncValue.error(error);
-  //   }
-  // }
-  //
   Future<void> deleteTodo(int id) async {
+    if (state is AsyncError) {
+      state = AsyncValue.error('There is an error in the list.');
+      return;
+    }
     final currentList = state.data.value;
-    state = const AsyncValue.loading();
-    try {
+    await _tryCatch(() async {
       await todoRepository.deleteTodo(id: id);
       final newList = currentList.where((todo) => todo.id != id).toList();
       state = AsyncValue.data(newList);
+    });
+  }
+
+  Future<void> _tryCatch(Function callback) async {
+    state = const AsyncValue.loading();
+    try {
+      await callback();
     } on Exception catch (error) {
       state = AsyncValue.error(error);
     }
