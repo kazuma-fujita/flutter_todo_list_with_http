@@ -51,8 +51,7 @@ class TodoList extends HookWidget {
   }
 
   Widget _buildList() {
-    final todoState = useProvider(todoListViewModelProvider.state);
-    return todoState.when(
+    return useProvider(todoListViewModelProvider.state).when(
       data: (todoList) => todoList.isNotEmpty
           ? ListView.builder(
               key: UniqueKey(),

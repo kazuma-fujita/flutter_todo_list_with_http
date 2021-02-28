@@ -31,12 +31,12 @@ class _UpsertTodoView extends HookWidget {
     final isNew =
         ModalRoute.of(context).settings.arguments as TodoEntity == null;
     useProvider(upsertTodoViewModelProvider.state).when(
-      data: (todo) {
+      data: (todo) async {
         if (todo != null) {
-          EasyLoading.dismiss();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pop(context, '${todo.title}を${isNew ? '作成' : '更新'}しました');
-          });
+          await EasyLoading.dismiss();
+          // WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pop(context, '${todo.title}を${isNew ? '作成' : '更新'}しました');
+          //});
         }
       },
       loading: () async {
